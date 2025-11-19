@@ -1,48 +1,74 @@
 """
 Database Schemas
 
-Define your MongoDB collection schemas here using Pydantic models.
-These schemas are used for data validation in your application.
+Define MongoDB collection schemas using Pydantic models.
+Each model name (lowercased) maps to a collection name.
 
-Each Pydantic model represents a collection in your database.
-Model name is converted to lowercase for the collection name:
-- User -> "user" collection
-- Product -> "product" collection
-- BlogPost -> "blogs" collection
+Examples:
+- User -> "user"
+- Project -> "project"
 """
 
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, Field, HttpUrl, EmailStr
+from typing import List, Optional
+from datetime import datetime
 
-# Example schemas (replace with your own):
 
-class User(BaseModel):
-    """
-    Users collection schema
-    Collection name: "user" (lowercase of class name)
-    """
-    name: str = Field(..., description="Full name")
-    email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
-    age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
-    is_active: bool = Field(True, description="Whether user is active")
+class Project(BaseModel):
+    title: str = Field(..., description="Project title")
+    slug: str = Field(..., description="Unique identifier")
+    description: str = Field(..., description="Short description")
+    tech: List[str] = Field(default_factory=list, description="Tech tags")
+    image: Optional[HttpUrl] = Field(None, description="Cover image URL")
+    repo_url: Optional[HttpUrl] = Field(None, description="GitHub repo URL")
+    live_url: Optional[HttpUrl] = Field(None, description="Live demo URL")
+    featured: bool = Field(default=False, description="Featured on home")
+    stars: Optional[int] = Field(default=None, description="GitHub stars cache")
 
-class Product(BaseModel):
-    """
-    Products collection schema
-    Collection name: "product" (lowercase of class name)
-    """
-    title: str = Field(..., description="Product title")
-    description: Optional[str] = Field(None, description="Product description")
-    price: float = Field(..., ge=0, description="Price in dollars")
-    category: str = Field(..., description="Product category")
-    in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
+class Testimonial(BaseModel):
+    name: str
+    role: Optional[str] = None
+    quote: str
+    avatar: Optional[HttpUrl] = None
+    company: Optional[str] = None
+    highlight: Optional[bool] = False
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+
+class GuestbookEntry(BaseModel):
+    name: str
+    message: str
+    avatar: Optional[HttpUrl] = None
+    website: Optional[HttpUrl] = None
+
+
+class BucketItem(BaseModel):
+    title: str
+    done: bool = False
+    notes: Optional[str] = None
+
+
+class UseItem(BaseModel):
+    category: str
+    name: str
+    description: Optional[str] = None
+    link: Optional[HttpUrl] = None
+
+
+class BlogPost(BaseModel):
+    title: str
+    slug: str
+    excerpt: Optional[str] = None
+    content: Optional[str] = None
+    tags: List[str] = []
+    cover_image: Optional[HttpUrl] = None
+    published: bool = False
+    published_at: Optional[datetime] = None
+
+
+class ContactMessage(BaseModel):
+    name: str
+    email: EmailStr
+    message: str
+    subject: Optional[str] = None
+    source: Optional[str] = None
